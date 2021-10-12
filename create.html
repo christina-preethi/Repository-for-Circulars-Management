@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+            if (localStorage.getItem("userId") == null) {
+                window.location.replace("auth.html");
+            } 
+        </script>
+    </head>
+
+<body>
+    <div class="input-group mb-3">    
+        key: <input type="text" id="key">
+        To: <input type="text" id="to">
+        From: <input type="text" id="from">
+        Title: <input type="text" id="title">
+        Body: <input type="text" id="body">
+        <button onclick="create()">SUBMIT</button>                  
+    </div> 
+
+    <button onclick="destroy()">LOGOUT</button>
+    
+    <script>
+
+        function destroy() {
+            var value = localStorage.removeItem("userId");
+            window.location.replace("auth.html");
+        }
+
+        async function ingest(key, to, from, title, body, time) {
+            const response = await fetch("http://127.0.0.1:5000/api/insert/", {
+                method: "PUT", 
+                body: JSON.stringify({
+                    "key": key,
+                    "to": to,
+                    "from": from,
+                    "title": title,
+                    "body": body,
+                    "time": time
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.status == 200) {
+                let json = await response.json(); // (3)
+                return json;
+            }
+            
+        // return response;
+        }
+
+        function create() {
+            var key = document.getElementById("key").value;
+            var to = document.getElementById("to").value;
+            var from = document.getElementById("from").value;
+            var title = document.getElementById("title").value;
+            var body = document.getElementById("body").value;
+            var time = new Date().toISOString();
+            
+            ingest(key, to, from, title, body, time)
+              .then(data => {
+                console.log("response =", data); // JSON data parsed by `data.json()` call
+                // renderCirculars(data.content);
+              }).catch(exp => {
+                  console.log(exp);
+              });
+
+            window.location.replace("home_page.html");
+            
+        }
+    </script>
+
+    <br>
+    <h4>
+        DELETE
+    </h4>
+    <script>
+        async function invokeDelete(key) {   
+            const response = await fetch("http://127.0.0.1:5000/api/delete/", {
+                method: "DELETE", 
+                body: JSON.stringify(key),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.status == 200) {
+                let json = await response.json(); // (3)
+                return json;
+            }
+            
+        }
+
+        function deleteQuery() {
+            var key = document.getElementById("del_key").value;
+        
+            invokeDelete(key)
+              .then(data => {
+                console.log("response =", data); 
+              }).catch(exp => {
+                  console.log(exp);
+              });
+            
+            window.location.replace("home_page.html");
+        }
+    </script>
+
+    <div class="input-group mb-3">    
+        Enter key: <input type="text" id="del_key">
+        <button onclick="deleteQuery()">DELETE</button>                  
+    </div> 
+
+    
+</body>
+</html>

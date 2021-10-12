@@ -1,0 +1,221 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+      
+       <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+      
+       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <style>
+            body {
+
+                background-image: url("bgimg1.jpeg");
+                height: 100%; 
+
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size: cover;
+                background-attachment: fixed;
+
+                position:absolute;
+                width:100%; 
+                height:100%;
+                /* background:black; */
+                /* background-image:url(../pictures/testjpg); */
+                /* background-size:cover; */
+                overflow-y: scroll;
+
+            }
+
+            select {
+                width: 13%;
+                text-align: center;
+                height: 45px;
+                padding: 9px 20px;
+                border-radius: 5px;
+                border-color: rgba(118, 181, 218, 0.753);
+                background-color: rgba(118, 181, 218, 0.753);
+                font-size: 18px;
+            }
+
+            input {
+                width: 40%;
+                border: none;
+                height: 45px;
+                padding: 12px 20px;
+                /* border-radius: 40px; */
+                background-color: rgba(235, 237, 238, 0.788);
+                font-size: 15px;
+            }
+
+            #search {
+                width: 4%;
+                border: none;
+                padding: 2px 2px;
+                font-size: 20px;
+                height: 45px;
+            }
+
+            #create {
+                text-align: center;
+                width: 7%;
+                height: 45px;
+                cursor: pointer;
+                color: white;
+                border-color: rgba(2, 37, 58, 0.753);
+                background-color: rgba(2, 28, 44, 0.89);
+                border-radius: 10px;
+            }
+            .card:hover{
+          
+                box-shadow: 8px 8px 8px blue;   
+                transform: scale(1.1);
+            }
+
+        </style>
+
+       <script>
+
+        async function displayRecent() {
+            const response = await fetch("http://127.0.0.1:5000/api/fetch/", {
+                method: "GET", 
+                // body: JSON.stringify(body),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.status == 200) {
+                let json = await response.json(); // (3)
+                return json;
+            }
+        }
+
+        function display() {
+            displayRecent()
+              .then(data => {
+                // console.log("response =", data); // JSON data parsed by `data.json()` call
+                renderCirculars(data.content);
+              }).catch(exp => {
+                  console.log(exp);
+              });
+            
+        }
+        
+        window.onload = function() {
+            if(!window.location.hash) {
+                window.location = window.location + '#loaded';
+                window.location.reload();
+            }
+        }
+
+        display();
+      
+    </script>
+
+    </head>
+
+    <body style="background-color:rgb(205, 209, 212);">
+        
+       
+        <button id="create" class="btn  btn-lg float-right" onclick="location.href = 'form.html';">ADMIN</button>
+        <br>  
+        
+        <div class="d-flex justify-content-center"> 
+          
+            <select name="search_by" id="search_value">
+                <option value="title">Title</option>
+                <option value="body" selected>Body</option>
+                <option value="to">To</option>
+                <option value="from">From</option>
+            </select>
+        
+            <input type="text" id="SearchForm" placeholder="Search..">
+            <button id="search" class="btn btn-primary" onclick="searchValue()"><i class="fa fa-search"></i></button>
+          
+            
+        </div>       
+        
+        <br>
+       
+    
+      <script>
+        async function searchCirculars(field, value) {
+            const response = await fetch("http://127.0.0.1:5000/api/search/", {
+                method: "POST", 
+                body: JSON.stringify({'field': field, 'value': value}),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.status == 200) {
+                let json = await response.json(); // (3)
+                return json;
+            }
+        }
+
+        function viewCircular(_id) {
+            console.log("_id", _id);
+            localStorage.setItem("circular._id", _id);
+            window.location.replace("view_circular.html");
+        }
+
+        function renderCirculars(circulars) {
+            let allCirculars = "";
+            localStorage.setItem("circulars", JSON.stringify(circulars));
+            circulars.forEach(circularDocument => {
+                let circular = circularDocument._source;
+
+                let card =  `
+                    <div class="p-3 col-4 ">
+                        <div class="card text-white bg-primary mb-3 shadow-lg p-3 bg-info rounded" style="max-width: 20rem;">
+                            <div class="card-header shadow-sm p-3 bg-info rounded"> ${circular.title} </div>
+                            <div class="card-body">
+                                <h5 class="card-title">${circular.from}</h5>
+                                <p class="card-text text-white"> ${circular.body.slice(0,40) + '...'} </p>
+                                <button class="btn btn-dark" onclick="viewCircular('${circularDocument._id}')">VIEW</button>
+                            </div>
+                            <div class="card-footer">
+                                <small class="tex-white">Dt: ${circular.time.slice(0, 10)}</small>
+                            </div>
+                        </div>
+                    </div>`
+            allCirculars += card;    
+
+            }); 
+            document.getElementById("circularsTable").innerHTML = allCirculars;
+        
+           
+        }
+
+        function searchValue() {
+            var circularBody = document.getElementById("SearchForm").value;
+            // document.getElementById("demo").innerHTML = "<i>" + x + "</i>";
+            var search_by = document.getElementById("search_value").value;
+            searchCirculars(search_by, circularBody)
+              .then(data => {
+                console.log("response =", data);
+                renderCirculars(data.content);
+              }).catch(exp => {
+                  console.log(exp);
+              });
+            
+        }
+
+    </script>
+        <div class="container px-4">
+            
+            <div class="row" id="circularsTable">
+
+            </div>
+        </div>
+        <!-- <table id="circularsTable" class="table table-hover table-bordered">
+        </table> -->
+
+        
+    </body>
+</html>
+

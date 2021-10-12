@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="form.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script>
+  if (localStorage.getItem("userId") == null) {
+      window.location.replace("auth.html");
+  } 
+</script>
+</head>
+
+
+<body >
+    <div class="mybutton">
+        <div class='btn btn-success pull-right'>
+           
+            <button class="mybutton" onclick="destroy()" style="font-size:24px;color:red"> <i  class="fa fa-sign-out"></i></button>   
+        </div>
+        
+           
+  
+    </div>
+  
+    
+   
+
+<div style="display: flex;">
+<!-- 
+    <div class="form-style-6">
+        <h1>CREATE CIRCULAR</h1>
+        <br>-->
+       
+<div class="container" >
+    <h1>CREATE CIRCULAR</h1>
+  <form action="home_page.html">
+    <div class="row">
+      <div class="col-25">
+      <!-- <label for="key">Key</label>-->  
+      </div>
+      <div class="col-75">
+        <input type="text" id="key" name="key" placeholder="Key..." required>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+      <!--   <label for="to">To</label>-->
+      </div>
+      <div class="col-75">
+        <input type="text" id="to" name="to" placeholder="To..." required>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+      <!--  <label for="from">From</label>--> 
+      </div>
+      <div class="col-75">
+        <input type="text" id="from" name="from" placeholder="From..." required>
+      </div>
+    </div>
+    <div class="row">
+        <div class="col-25">
+         <!--<label for="title">Title</label> --> 
+        </div>
+        <div class="col-75">
+          <input type="text" id="title" name="title" placeholder="Title..." required>
+        </div>
+      </div>
+    <div class="row">
+      <div class="col-25">
+        <!-- <label for="body">Body</label>-->
+      </div>
+      <div class="col-75">
+        <textarea id="body" name="body" placeholder="Body..." style="height:200px" required></textarea>
+      </div>
+    </div>
+    <div class="row">
+      <input  type="submit" onclick="create()" value="Submit" >
+    </div>
+  </form>
+</div>
+
+<br>
+
+<!--<div class="form-style-6">
+    <h1>DELETE CIRCULAR</h1>
+    <br>-->
+<div class="container" >
+    <h1>DELETE CIRCULAR</h1>
+    <form action="home_page.html">
+      <div class="row">
+        <div class="col-25">
+        <!-- <label for="key">Key</label>-->  
+        </div>
+        <div class="col-75">
+          <input type="text" id="del_key" name="firstname" placeholder="Key..." required>
+        </div>
+      </div>
+      
+      <div class="row">
+        <input type="submit" onclick="deleteQuery()" value="Delete">
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+
+  function destroy() {
+      var value = localStorage.removeItem("userId");
+      window.location.replace("home_page.html");
+  }
+
+  async function ingest(key, to, from, title, body, time) {
+      const response = await fetch("http://127.0.0.1:5000/api/insert/", {
+          method: "PUT", 
+          body: JSON.stringify({
+              "key": key,
+              "to": to,
+              "from": from,
+              "title": title,
+              "body": body,
+              "time": time
+          }),
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+      
+      if (response.status == 200) {
+          let json = await response.json(); // (3)
+          return json;
+      }
+      
+  // return response;
+  }
+
+  function create() {
+      var key = document.getElementById("key").value;
+      var to = document.getElementById("to").value;
+      var from = document.getElementById("from").value;
+      var title = document.getElementById("title").value;
+      var body = document.getElementById("body").value;
+      var time = new Date().toISOString();
+  
+
+            if (key == "") {
+              alert("Please fill out the key field");
+              return;
+            }
+            if (to == "") {
+              alert("Please fill out the to field");
+              return;
+            }
+            if (from == "") {
+              alert("Please fill out the from field");
+              return;
+            }
+            if (title == "") {
+              alert("Please fill out the title field");
+              return;
+            }
+            if (body == "") {
+              alert("Please fill out the body field");
+              return;
+            }
+            if (time == "") {
+              alert("Please fill out the time field");
+              return;
+            }
+           
+      
+      ingest(key, to, from, title, body, time)
+        .then(data => {
+          console.log("response =", data); // JSON data parsed by `data.json()` call
+          // renderCirculars(data.content);
+        }).catch(exp => {
+            console.log(exp);
+        });
+
+      window.location = "home_page.html";
+      
+  }
+</script>
+
+<script>
+  async function invokeDelete(key) {   
+      const response = await fetch("http://127.0.0.1:5000/api/delete/", {
+          method: "DELETE", 
+          body: JSON.stringify(key),
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+      
+      if (response.status == 200) {
+          let json = await response.json(); // (3)
+          return json;
+      }
+      
+  }
+
+  function deleteQuery() {
+      var key = document.getElementById("del_key").value;
+  
+      invokeDelete(key)
+        .then(data => {
+          console.log("response =", data); 
+          
+        }).catch(exp => {
+            console.log(exp);
+        });
+  }
+</script>
+
+</body>
+</html>

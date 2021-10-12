@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> 
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> -->
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
+
+    <style>
+        /* body {
+
+            background-image: url("bgimg1.jpeg");
+            height: 100%; 
+
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        } */
+    </style>
+    
+    <script>
+
+        async function displayRecent() {
+            const response = await fetch("http://127.0.0.1:5000/api/fetch/", {
+                method: "GET", 
+                // body: JSON.stringify(body),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.status == 200) {
+                let json = await response.json(); // (3)
+                return json;
+            }
+        }
+
+        function display() {
+            displayRecent()
+              .then(data => {
+                // console.log("response =", data); // JSON data parsed by `data.json()` call
+                renderCirculars(data.content);
+              }).catch(exp => {
+                  console.log(exp);
+              });
+            
+        }
+        
+        window.onload = function() {
+            if(!window.location.hash) {
+                window.location = window.location + '#loaded';
+                window.location.reload();
+            }
+        }
+
+        display();
+      
+    </script>
+</head>
+
+<body>
+    
+    <button onclick="location.href = 'form.html';">CREATE</button>
+    <br>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <div class="input-group mb-3"> 
+                    <select name="search_by" id="search_value">
+                        <option value="title">Title</option>
+                        <option value="body" selected>Body</option>
+                        <option value="to">To</option>
+                        <option value="from">From</option>
+                    </select>
+                    <input type="text" id="SearchForm">
+                    <!-- <input type="submit" value="Search">  -->
+                    <button onclick="searchValue()">SEARCH</button>                  
+                </div>
+            </div>
+            <div class="col-sm">
+            </div>
+            <div class="col-sm">
+            </div>
+        </div>
+    </div>
+
+    <p id="demo"></p>
+    
+    <script>
+        async function searchCirculars(field, value) {
+            const response = await fetch("http://127.0.0.1:5000/api/search/", {
+                method: "POST", 
+                body: JSON.stringify({'field': field, 'value': value}),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.status == 200) {
+                let json = await response.json(); // (3)
+                return json;
+            }
+        }
+
+        function viewCircular(_id) {
+            console.log("_id", _id);
+            localStorage.setItem("circular._id", _id);
+            window.location.replace("view.html");
+        }
+
+        function renderCirculars(circulars) {
+            let allCirculars = "";
+            localStorage.setItem("circulars", JSON.stringify(circulars));
+            circulars.forEach(circularDocument => {
+                let circular = circularDocument._source;
+                let tableRow = `<tr>
+                    <td>
+                        ${circular.key}
+                    </td>
+                    <td>
+                        ${circular.title}
+                    </td>
+                    <td>
+                        ${circular.body}
+                    </td>
+                    <td>
+                        ${circular.from}
+                    </td>
+                    <td>
+                        ${circular.to}
+                    </td>
+                    <td>
+                        ${circular.time}
+                    </td>
+                    <td>
+                        <button onclick="viewCircular('${circularDocument._id}')">VIEW</button>
+                    </td>
+                </tr>`;
+                allCirculars += tableRow;
+            });
+            let tableHead = `<thead class="table-dark">
+                <tr>
+                    <th>
+                        Key
+                    </th>
+                    <th>
+                        Title
+                    </th>
+                    <th>
+                        Body
+                    </th>
+                    <th>
+                        From
+                    </th>
+                    <th>
+                        To
+                    </th>
+                    <th>
+                        Time
+                    </th>
+                    <th>
+                        View
+                    </th>
+                </tr>    
+            </thead>`;
+            document.getElementById("circularsTable").innerHTML = tableHead + allCirculars;
+        }
+
+
+        function searchValue() {
+            var circularBody = document.getElementById("SearchForm").value;
+            // document.getElementById("demo").innerHTML = "<i>" + x + "</i>";
+            var search_by = document.getElementById("search_value").value;
+            searchCirculars(search_by, circularBody)
+              .then(data => {
+                console.log("response =", data);
+                renderCirculars(data.content);
+              }).catch(exp => {
+                  console.log(exp);
+              });
+            
+        }
+
+    </script>
+
+
+
+    <table id="circularsTable" class="table table-hover table-bordered">
+    </table>
+</body>
