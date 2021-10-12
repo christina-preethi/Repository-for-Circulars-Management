@@ -1,13 +1,13 @@
-Only for admins
-1. Authentication - Done
-2. Create Circulars - Done
-3. Delete Ciruclars - Done
-
-Other Users
-4. View Ciruclar - Done
-
-Enhancements
-5. Search Circular by category - Done
-6. Send mail 
-
-https://gist.github.com/christina-preethi/a527030a4a63a0d3d0a85ecbbbc7e754
+<h4>Abstract </h4>
+The Circular Repository is an innovative e-management initiative of circulars for
+transparent and responsive management within an organization. It is a
+web-based software. This system helps us with creation, controlled
+dissemination and retrieval of the circulars in seconds, and also provides the
+feature for downloading the desired circular besides giving the view of the latest
+circulars on board.
+</br> <br>
+It is built query-friendly which is achieved by making API calls along with great
+UI, providing authorized access to the admins to manage the repository and a
+direct access to the users to operate within the circular repository. It also
+addresses the requirement of searching a focused circular in the abundant
+information through advanced multi-parameter search facilities.
